@@ -35,55 +35,69 @@ public class Client
     byte[] buffer;
     //messaggio di risposta
     String response;
+    InetAddress serverAddress;
     
-    public Client(InetAddress ip, int port)
+    public Client(int port)
     {
         try
         {
-            
+            serverAddress = InetAddress.getLocalHost(); 
             System.out.println("Indirizzo del server trovato!");
             dSocket = new DatagramSocket();
-            String message=invio();
-            outPacket = new DatagramPacket(message.getBytes(), message.length(), ip, port); //message.getBytes() da stringa passiamo a byte. 
+        } 
+        catch (SocketException ex) // generato da  dSocket = new DatagramSocket();
+        {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        } 
+        catch (UnknownHostException ex) //InetAddress.getLocalHost();
+        {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        } 
+        
+    }
+    
+    public void invio()
+    {
+        String message = "RICHIESTA DATA E ORA\"";
+        outPacket = new DatagramPacket(message.getBytes(), message.length(), serverAddress, port); //message.getBytes() da stringa passiamo a byte. 
+        try 
+        {
             dSocket.send(outPacket);
-            
-            //si prepara il buffer di ricezione
-            buffer = new byte[256];
-            
-            //e il datagramma UDP per ricevere i dati del buffer
-            inPacket = new DatagramPacket(buffer, buffer.length);
-
-            //si accetta il datagramma di risposta
-            dSocket.receive(inPacket);
-
-            //si estrae il messaggio
-            response = new String(inPacket.getData(), 0, inPacket.getLength());
-
-            System.out.println("Connessione stabilita!");
-            System.out.println("Data e ora del server: " + response);
-            System.out.println("Connessione chiusa!");
-
-            //si chiude la connessione
-            dSocket.close();
-            
         } 
-        catch (SocketException ex) // catch collegato al dSocket
-        {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-        } 
-        catch (UnknownHostException ex) // catch legato al getLocalHost()
-        {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-        } 
-        catch (IOException ex) // catch legato a dSocket.send(outPacket);
+        catch (IOException ex) // catch generato da dSocket.send(outPacket);
         {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
-    
-    public String invio()
-    {
         
-        return "RICHIESTA DATA E ORA\"";
+       
     } 
+    
+    public void ricevi()
+    {
+         //si prepara il buffer di ricezione
+        buffer = new byte[256];
+
+        //e il datagramma UDP per ricevere i dati del buffer
+        inPacket = new DatagramPacket(buffer, buffer.length);
+
+        try 
+        {
+            //si accetta il datagramma di risposta
+            dSocket.receive(inPacket);
+        } 
+        catch (IOException ex) // catch generato da dSocket.receive(inPacket);
+        {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        //si estrae il messaggio
+        response = new String(inPacket.getData(), 0, inPacket.getLength());
+
+        System.out.println("Connessione stabilita!");
+        System.out.println("Data e ora del server: " + response);
+        System.out.println("Connessione chiusa!");
+
+        //si chiude la connessione
+        dSocket.close();
+    }
 }

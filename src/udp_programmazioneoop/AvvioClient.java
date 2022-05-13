@@ -18,14 +18,12 @@ public class AvvioClient
 {
      public static void main(String[] args) 
     {
-        try 
-        {
-            Client cli = new Client(InetAddress.getLocalHost(), 2000);
-        } 
-        catch (UnknownHostException ex) 
-        {
-            Logger.getLogger(AvvioClient.class.getName()).log(Level.SEVERE, null, ex);
-        }
+       
+        Client cli = new Client(2000);
+        cli.invio();
+        cli.ricevi();
+        
+       
       
     }
       
